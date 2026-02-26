@@ -1,0 +1,21 @@
+{
+  "name": "synthlat",
+  "version": "26.2",
+  "description": "My custom discord bot",
+  "scripts": {
+    "start": "discremy start"
+  },
+  "dependencies": {
+    "@discordjs/rest": "^0.4.1",
+    "@google/genai": "^1.43.0",
+    "discord-api-types": "^0.38.40",
+    "discord-html-transcripts": "^3.2.0",
+    "discord.js": "^14.25.1",
+    "discremy": "^1.0.3",
+    "dotenv": "^16.3.1",
+    "fs-extra": "11.1.1",
+    "mongodb": "^5.9.2"
+  },
+  "author": "ronaldzav",
+  "license": "MIT"
+}
