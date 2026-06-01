@@ -18,7 +18,7 @@
 Synthlat es un bot de discord de codigo abierto en español. Que busca que cualquier persona pueda personalizar su servidor de discord que buscan algo funcional y asequible.
 
 ## 💻 Desarrollo
-Se usan las siguientes teconologias:
+Se usan las siguientes tecnologias:
 - Discord.JS
 - Discremy
 - MongoDB
