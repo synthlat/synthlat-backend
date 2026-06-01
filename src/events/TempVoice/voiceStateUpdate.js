@@ -15,6 +15,16 @@ module.exports = {
         if (newState.channelId === db.channelId) {
             const member = newState.member;
 
+            // Prevención de DoS: Límite de 1 canal por usuario
+            const userHasChannel = [...client.tempVoiceChannels.entries()].find(
+                ([, ch]) => ch.creatorId === member.id && ch.guildId === guild.id
+            );
+
+            if (userHasChannel) {
+                try { await member.voice.setChannel(userHasChannel[0]); } catch (e) {}
+                return;
+            }
+
             // Verificar roles permitidos
             if (db.allowedRoles?.length) {
                 const hasRole = db.allowedRoles.some(roleId => member.roles.cache.has(roleId));
@@ -50,7 +60,7 @@ module.exports = {
 
                 // Persistir en DB
                 db.activeChannels.push(tempChannel.id);
-                await db.save();
+                await db.save().catch(e => client.log(`[TempVoice] Error guardando DB: ${e.message}`));
 
                 // Enviar panel de control en el chat del canal de voz
                 const panelEmbed = new EmbedBuilder()
@@ -93,7 +103,7 @@ module.exports = {
                 } finally {
                     client.tempVoiceChannels.delete(oldState.channelId);
                     db.activeChannels = db.activeChannels.filter(id => id !== oldState.channelId);
-                    await db.save();
+                    await db.save().catch(e => client.log(`[TempVoice] Error guardando DB: ${e.message}`));
                 }
             }
         }

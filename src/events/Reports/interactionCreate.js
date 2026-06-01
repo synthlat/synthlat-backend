@@ -26,7 +26,7 @@ module.exports = {
             return interaction.reply({ content: "No tienes permisos para gestionar reportes.", ephemeral: true });
         }
 
-        const reportData = client.pendingReports?.get(reportId);
+        const reportData = db.pendingReports?.find(r => r.reportId === reportId);
         if (!reportData) {
             return interaction.reply({ content: "Este reporte ya fue procesado o expiró.", ephemeral: true });
         }
@@ -89,6 +89,7 @@ module.exports = {
 
         await interaction.message.edit({ embeds: [updatedEmbed], components: [disabledRow] });
 
-        client.pendingReports.delete(reportId);
+        db.pendingReports = db.pendingReports.filter(r => r.reportId !== reportId);
+        await db.save().catch(e => client.log(`[Reports] Error guardando DB: ${e.message}`));
     }
 };

@@ -1,5 +1,5 @@
 module.exports = {
-    name: "ready",
+    name: "clientReady",
     run: async (client) => {
         client.inviteCache = new Map();
         client.inviterMap = new Map();

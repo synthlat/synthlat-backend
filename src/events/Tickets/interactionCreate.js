@@ -38,6 +38,14 @@ module.exports = {
 
         const { customId, guild, user } = interaction;
 
+        if (!client.cooldowns) client.cooldowns = new Map();
+        const cooldownKey = `tkt_comp_${user.id}_${customId}`;
+        if (client.cooldowns.has(cooldownKey)) {
+            return interaction.reply({ content: "Espera unos segundos antes de realizar esta acción.", ephemeral: true });
+        }
+        client.cooldowns.set(cooldownKey, Date.now());
+        setTimeout(() => client.cooldowns.delete(cooldownKey), 3000);
+
         // ─── Selección de categoría → crear ticket ───────────────────────────
         if (interaction.componentType === ComponentType.StringSelect && customId.startsWith("tkt_select_")) {
             const panelId = customId.replace("tkt_select_", "");
@@ -113,7 +121,7 @@ module.exports = {
                 controlMessageId: controlMsg?.id ?? null,
                 claimedBy: null,
             });
-            await db.save();
+            await db.save().catch(e => client.log(`[Tickets] Error guardando DB: ${e.message}`));
 
             // Refrescar el panel para reiniciar el select menu
             try {
@@ -165,7 +173,7 @@ module.exports = {
             }
 
             ticketData.claimedBy = user.id;
-            await db.save();
+            await db.save().catch(e => client.log(`[Tickets] Error guardando DB: ${e.message}`));
 
             await interaction.deferUpdate().catch(() => {});
 
@@ -206,6 +214,7 @@ module.exports = {
             // Generar transcript y enviar al creador por DM
             try {
                 const transcriptFile = await discordTranscripts.createTranscript(interaction.channel, {
+                    limit: 1000,
                     filename: `transcript-${interaction.channel.name}.html`,
                     poweredBy: false,
                 });
@@ -222,7 +231,7 @@ module.exports = {
 
             // Eliminar de DB y borrar canal
             db.activeTickets = db.activeTickets.filter(t => t.channelId !== interaction.channel.id);
-            await db.save();
+            await db.save().catch(e => client.log(`[Tickets] Error guardando DB: ${e.message}`));
 
             await interaction.channel.delete(`Ticket cerrado por ${user.username}`).catch(() => {});
         }
